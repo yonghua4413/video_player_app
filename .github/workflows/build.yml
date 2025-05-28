@@ -1,16 +1,35 @@
 name: Build Windows EXE
-on: push
+
+on: 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - run: flutter pub get
-      - run: flutter build windows
-      - uses: actions/upload-artifact@v3
+          cache: true
+          
+      - name: Install dependencies
+        run: flutter pub get
+        
+      - name: Build Windows EXE
+        run: flutter build windows --release
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4  # 更新到v4版本
         with:
           name: windows-build
-          path: build/windows/runner/Release/
+          path: |
+            build/windows/runner/Release/*.exe
+            build/windows/runner/Release/*.dll
+            build/windows/runner/Release/data/
