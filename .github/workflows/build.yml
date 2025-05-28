@@ -1,6 +1,6 @@
 name: Build Windows EXE
 
-on: 
+on:
   push:
     branches: [ main ]
   pull_request:
@@ -22,14 +22,17 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
         
-      - name: Build Windows EXE
-        run: flutter build windows --release
+      - name: Enable Windows desktop
+        run: flutter config --enable-windows
         
+      - name: Build Windows EXE
+        run: |
+          flutter build windows --release
+          ls -R build/windows/runner/Release/  # 调试：列出构建目录内容
+          
       - name: Upload artifact
-        uses: actions/upload-artifact@v4  # 更新到v4版本
+        uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: |
-            build/windows/runner/Release/*.exe
-            build/windows/runner/Release/*.dll
-            build/windows/runner/Release/data/
+          path: build/windows/runner/Release/
+          if-no-files-found: error  # 如果没有文件则报错
